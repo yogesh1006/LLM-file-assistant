@@ -1,0 +1,6 @@
+Rohan Shah
+Role: Full Stack Engineer
+Skills: Python, Django, React, PostgreSQL
+Experience: 5 years developing end-to-end web applications
+Education: Bachelor of Engineering
+Portfolio: example.invalid/3

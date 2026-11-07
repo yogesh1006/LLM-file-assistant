@@ -1,0 +1,6 @@
+Sara Fernandes
+Role: QA Automation Engineer
+Skills: Python, Pytest, Selenium, Playwright
+Experience: 3 years building automated test suites
+Education: Bachelor of Engineering
+Portfolio: example.invalid/6
