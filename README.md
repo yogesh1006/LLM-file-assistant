@@ -1,27 +1,61 @@
 # LLM Resume File Assistant
 
-A Python assignment demonstrating four structured file-system tools and OpenAI function calling with CLI and Streamlit interfaces.
+A Python assignment demonstrating four structured file-system tools with OpenAI or OpenRouter, through a CLI and a Streamlit app.
 
 ## Features
+
 - `fs_tools.py`: `read_file`, `list_files`, `write_file`, `search_in_file`.
 - PDF (text-based), DOCX, and TXT resume extraction with metadata and contextual matches.
 - Strict workspace-relative paths, file size limit (5 MB), and safe new-file writes (`.txt`/`.md`).
-- OpenAI Responses API tool-calling loop with visible execution logs.
+- OpenAI Responses and OpenRouter Chat Completions with visible tool execution logs.
 - Eight entirely fictional sample resumes and upload support.
-- Unit tests and a fake OpenAI client test (no API key needed).
+- Offline tests for both providers and all four file tools.
 
 ## Quick start (Python 3.11+)
 
-```bash
+On Windows PowerShell:
+
+```powershell
 python -m venv .venv
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
 ```
 
-Create an OpenAI API key at https://platform.openai.com/api-keys and replace the placeholder in `.env`. The OpenAI API has separate usage-based billing from ChatGPT. Never commit the `.env` file.
+On macOS or Linux:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+If you already have a `.env`, edit it in place. Keep `.env` out of version control.
+
+### OpenRouter
+
+Create a key and set these values in `.env`. [OpenRouter API keys](https://openrouter.ai/keys)
+
+```dotenv
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=your_openrouter_key
+OPENROUTER_MODEL=openai/gpt-4.1-mini
+```
+
+The app sets the OpenRouter endpoint and uses the OpenRouter key for both the CLI and Streamlit. The example model uses paid OpenRouter usage. To try a free model, look for an available `:free` variant with tool calling and copy its full model ID into `OPENROUTER_MODEL`. [GPT-4.1 Mini on OpenRouter](https://openrouter.ai/openai/gpt-4.1-mini) · [Models that support tools](https://openrouter.ai/models?supported_parameters=tools)
+
+### Direct OpenAI
+
+Create an OpenAI API key and set these values in `.env`. [OpenAI API keys](https://platform.openai.com/api-keys)
+
+```dotenv
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your_openai_key
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+Existing setups without `LLM_PROVIDER` use OpenAI. Restart the CLI or Streamlit after changing `.env`. Both providers use the `openai` Python package.
 
 ## Test without an API key
 
@@ -36,6 +70,7 @@ python llm_file_assistant.py
 ```
 
 Sample queries:
+
 - `Read all resumes in the resumes folder.`
 - `Find resumes mentioning Python experience.`
 - `Read resumes/01_aarav_mehta.pdf and create a summary in output/aarav_summary.md.`
@@ -52,12 +87,18 @@ Each UI session gets a temporary workspace with separate files. Upload `.pdf`, `
 
 1. Push this repository to GitHub **without** `.env` or actual private resumes.
 2. Visit https://share.streamlit.io, choose Create app, select the repository and `app.py`.
-3. In Advanced settings → Secrets, add `OPENAI_API_KEY = "..."` and optionally `OPENAI_MODEL = "gpt-4.1-mini"`.
+3. In Advanced settings → Secrets, add the selected provider's settings at the top level. For OpenRouter, use the example below. For direct OpenAI, use `LLM_PROVIDER = "openai"`, `OPENAI_API_KEY`, and optionally `OPENAI_MODEL`.
 4. Deploy and test tool calling with fictional sample files. Public apps can incur API usage charges; protect access if necessary.
+
+```toml
+LLM_PROVIDER = "openrouter"
+OPENROUTER_API_KEY = "your_openrouter_key"
+OPENROUTER_MODEL = "openai/gpt-4.1-mini"
+```
 
 ## Architecture
 
-User → CLI/Streamlit → OpenAI Responses API → tool schema → Python dispatcher → FileTools workspace → tool result → OpenAI answer. Tools execute locally on the server, not in the model. Uploaded files are sent as extracted text to OpenAI when read as context.
+The CLI and Streamlit share `ResumeAssistant`. It sends tool definitions to the selected provider, executes requested tools locally through `FileTools`, and sends the tool results back to the model. Those results can contain extracted resume text or search snippets. OpenRouter can route that content to the provider serving the model. [OpenRouter client tools](https://openrouter.ai/docs/guides/features/tool-calling)
 
 ## Scope and limitations
 
