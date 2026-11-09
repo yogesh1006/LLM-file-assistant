@@ -69,7 +69,7 @@ class ResumeAssistant:
         key_name = f'{self.provider.upper()}_API_KEY'
         api_key = os.getenv(key_name, '').strip()
         if not api_key:
-            raise RuntimeError(f'Set {key_name} in .env or deployment secrets first')
+            raise RuntimeError(f'Set {key_name} in .env first')
         if self.provider == 'openrouter':
             return OpenAI(api_key=api_key, base_url='https://openrouter.ai/api/v1')
         return OpenAI(api_key=api_key)
